@@ -2,24 +2,32 @@
 <html>
 <head>
   <title>Nxona Code Runner</title>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
   <style>
     body { background: #121212; color: white; font-family: sans-serif; padding: 1rem; transition: 0.3s; }
     textarea, input, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: none; font-size: 16px; }
     textarea { height: 200px; background: #1e1e1e; color: #0f0; }
-    button { background: #ff8800; color: black; font-weight: bold; margin-right: 5px; }
+    button { background: #ff8800; color: black; font-weight: bold; margin-right: 5px; margin-bottom: 5px; }
     pre { background: #222; padding: 10px; border-radius: 10px; white-space: pre-wrap; margin-top: 10px; }
-    iframe { width: 100%; height: 300px; border: 1px solid #444; margin-top: 10px; border-radius: 10px; background: #fff; }
     .dark { background: #ffffff; color: #000000; }
     .dark textarea { background: #e0e0e0; color: #000; }
     .dark pre { background: #f5f5f5; color: #111; }
-    .center { text-align: center; }
-    .toolbar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0; }
-    footer { text-align: center; margin-top: 30px; color: #888; font-size: 14px; }
+    .topbar { text-align: center; margin-bottom: 15px; }
+    .buttons { text-align: center; margin-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; }
+    .buttons button { flex: 1 1 auto; max-width: 180px; }
+    footer { text-align: center; margin-top: 30px; opacity: 0.7; font-size: 14px; }
   </style>
 </head>
 <body>
-  <h2 class="center">🚀 Nxona Code Runner</h2>
+  <div class="topbar">
+    <h2>🚀 Nxona Code Runner</h2>
+    <div class="buttons">
+      <button onclick="runCode()">▶ Run</button>
+      <button onclick="saveToFile()">💾 Save</button>
+      <button onclick="saveLocal()">📥 Save Local</button>
+      <button onclick="loadLocal()">📤 Load Local</button>
+      <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
+    </div>
+  </div>
 
   <label>📄 File Name:</label>
   <input type="text" id="filename" placeholder="example: code.js, script.py, index.html" />
@@ -27,35 +35,18 @@
   <label>💻 Code:</label>
   <textarea id="code" placeholder="Write your code here..."></textarea>
 
-  <div class="toolbar">
-    <button onclick="runCode()">▶ Run</button>
-    <button onclick="saveToFile()">💾 Save</button>
-    <button onclick="saveLocal()">📥 Save Local</button>
-    <button onclick="loadLocal()">📤 Load Local</button>
-    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
-  </div>
-
   <h3>📋 Output:</h3>
-  <pre id="output">Output will appear here...</pre>
-  <iframe id="htmlPreview" style="display:none;"></iframe>
+  <pre id="output"></pre>
 
   <footer>
     Nxona LLC | ©Nxona Code Runner
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
   <script>
-    let pyodideReady = false;
-    let pyodide = null;
-
-    async function loadPyodideOnce() {
-      if (!pyodideReady) {
-        document.getElementById("output").textContent = "⏳ Loading Python engine...";
-        pyodide = await loadPyodide();
-        pyodideReady = true;
-      }
-    }
-
     let darkMode = true;
+    let pyodideInstance;
+
     function toggleDark() {
       darkMode = !darkMode;
       document.body.classList.toggle("dark", !darkMode);
@@ -65,50 +56,54 @@
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
       const output = document.getElementById("output");
-      const htmlPreview = document.getElementById("htmlPreview");
 
       if (filename.endsWith(".js")) {
         try {
           const result = eval(code);
           output.textContent = result ?? "✅ JS executed.";
-          htmlPreview.style.display = "none";
         } catch (e) {
           output.textContent = "❌ JS Error:\n" + e.message;
-          htmlPreview.style.display = "none";
         }
       } else if (filename.endsWith(".py")) {
-        await loadPyodideOnce();
+        output.textContent = "⏳ Loading Python engine...";
+        if (!pyodideInstance) {
+          pyodideInstance = await loadPyodide();
+        }
         try {
-          let result = await pyodide.runPythonAsync(code);
-          output.textContent = result ?? "✅ Python executed.";
-          htmlPreview.style.display = "none";
-        } catch (e) {
-          output.textContent = "❌ Python Error:\n" + e.message;
-          htmlPreview.style.display = "none";
+          let captured = "";
+          pyodideInstance.setStdout({
+            batched: (s) => { captured += s; }
+          });
+          await pyodideInstance.runPythonAsync(code);
+          output.textContent = "✅ Python executed.\n" + captured.trim();
+        } catch (err) {
+          output.textContent = "❌ Python Error:\n" + err.message;
         }
       } else if (filename.endsWith(".html")) {
-        const blob = new Blob([code], { type: "text/html" });
-        htmlPreview.src = URL.createObjectURL(blob);
-        htmlPreview.style.display = "block";
-        output.textContent = "✅ HTML Preview loaded below.";
+        const win = window.open();
+        win.document.write(code);
+        win.document.close();
+        output.textContent = "✅ HTML opened in new tab.";
       } else {
-        output.textContent = "⛔ Only .js, .py and .html supported.";
-        htmlPreview.style.display = "none";
+        output.textContent = "⛔ Only .js, .py, .html files supported.";
       }
     }
 
     function saveToFile() {
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
+
       if (!filename) {
         alert("⚠️ Enter file name first!");
         return;
       }
+
       const blob = new Blob([code], { type: "text/plain" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
       link.click();
+
       document.getElementById("output").textContent = `✅ File saved: ${filename}`;
     }
 
