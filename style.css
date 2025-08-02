@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #f0f0f0;
+  transition: background 0.3s;
+}
+
+#app {
+  padding: 10px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#tabs {
+  margin-top: 10px;
+}
+
+#tabs button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+}
+
+#editor {
+  margin-top: 10px;
+  height: 300px;
+  border: 1px solid #ccc;
+}
+
+.CodeMirror {
+  height: 100%;
+}
+
+#actions {
+  margin-top: 10px;
+}
+
+#output {
+  margin-top: 10px;
+}
+
+#outputFrame {
+  width: 100%;
+  height: 200px;
+  border: 1px solid #000;
+}
+
+.dark {
+  background: #1e1e1e;
+  color: white;
+}
