@@ -1,57 +1,206 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html>
 <head>
   <title>Nxona Code Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { background: #121212; color: white; font-family: sans-serif; padding: 1rem; transition: 0.3s; }
-    textarea, input, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: none; font-size: 16px; }
-    textarea { height: 200px; background: #1e1e1e; color: #0f0; }
-    button { background: #ff8800; color: black; font-weight: bold; margin-right: 5px; margin-bottom: 5px; }
-    pre { background: #222; padding: 10px; border-radius: 10px; white-space: pre-wrap; margin-top: 10px; }
-    .dark { background: #ffffff; color: #000000; }
-    .dark textarea { background: #e0e0e0; color: #000; }
-    .dark pre { background: #f5f5f5; color: #111; }
-    .topbar { text-align: center; margin-bottom: 15px; }
-    .buttons { text-align: center; margin-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
-    footer { text-align: center; margin-top: 30px; opacity: 0.7; font-size: 14px; }
-    #supportBtn { position: fixed; bottom: 20px; right: 20px; background: #0088cc; color: white; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; display: flex; align-items: center; justify-content: center; }
-    #supportMenu { display: none; position: fixed; bottom: 80px; right: 20px; background: #222; border-radius: 8px; padding: 10px; }
-    #supportMenu a { display: block; color: #0ff; margin-bottom: 5px; text-decoration: none; }
+    body {
+      background: #121212;
+      color: white;
+      font-family: sans-serif;
+      padding: 1rem;
+      transition: 0.3s;
+      max-width: 100%;
+      overflow-x: hidden;
+      position: relative;
+    }
+    textarea, input, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 200px;
+      background: #1e1e1e;
+      color: #0f0;
+      resize: vertical;
+    }
+    button {
+      background: #ff8800;
+      color: black;
+      font-weight: bold;
+      margin: 5px 5px;
+      flex: 1 1 40%;
+      min-width: 140px;
+    }
+    pre {
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      margin-top: 10px;
+      overflow-x: auto;
+    }
+    .dark {
+      background: #ffffff;
+      color: #000000;
+    }
+    .dark textarea {
+      background: #e0e0e0;
+      color: #000;
+    }
+    .dark pre {
+      background: #f5f5f5;
+      color: #111;
+    }
+    .topbar {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .buttons {
+      text-align: center;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      opacity: 0.7;
+      font-size: 14px;
+    }
+    .support-box {
+      text-align: right;
+      margin-top: 20px;
+    }
+    .support-box a {
+      display: block;
+      margin-top: 5px;
+      text-decoration: none;
+      color: #00aced;
+      font-weight: bold;
+    }
+    .support-box img {
+      vertical-align: middle;
+      width: 18px;
+      height: 18px;
+      margin-right: 5px;
+    }
+    .info-icon {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      background: #333;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      text-align: center;
+      line-height: 36px;
+      cursor: pointer;
+      z-index: 999;
+    }
+    .info-menu {
+      display: none;
+      position: fixed;
+      top: 55px;
+      right: 10px;
+      background: #1e1e1e;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 10px;
+      z-index: 998;
+    }
+    .info-menu a {
+      display: block;
+      color: #00aced;
+      text-decoration: none;
+      margin: 5px 0;
+      font-weight: bold;
+    }
+    @media screen and (max-width: 600px) {
+      button {
+        min-width: 100px;
+        font-size: 14px;
+        padding: 8px;
+      }
+      textarea {
+        height: 150px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="info-icon" onclick="toggleInfo()">ℹ️</div>
+  <div class="info-menu" id="infoMenu">
+    <a href="https://privacypolicy.com" target="_blank">Privacy Policy</a>
+    <a href="https://termsandconditions.com" target="_blank">Terms & Conditions</a>
+  </div>
+
   <div class="topbar">
     <h2>🚀 Nxona Code Runner</h2>
-    <div class="buttons">
-      <button onclick="runCode()">▶ Run</button>
-      <button onclick="saveToFile()">💾 Save</button>
-      <button onclick="saveLocal()">📥 Save Local</button>
-      <button onclick="loadLocal()">📤 Load Local</button>
-      <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
-    </div>
   </div>
+
+  <div class="buttons">
+    <button onclick="runCode()">▶ Run</button>
+    <button onclick="saveToFile()">💾 Save</button>
+    <button onclick="saveLocal()">📥 Save Local</button>
+    <button onclick="loadLocal()">📤 Load Local</button>
+    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
+  </div>
+
   <label>📄 File Name:</label>
   <input type="text" id="filename" placeholder="example: code.js, script.py, index.html" />
+
   <label>💻 Code:</label>
   <textarea id="code" placeholder="Write your code here..."></textarea>
+
   <h3>📋 Output:</h3>
   <pre id="output"></pre>
+
+  <div class="support-box">
+    <a href="https://t.me/NxonaSupport" target="_blank">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram"> Telegram Support
+    </a>
+    <a href="https://t.me/NxonaCompany" target="_blank">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram"> Telegram Channel
+    </a>
+  </div>
+
   <footer>
-    Nxona LLC | ©Nxona Code Runner
-  </footer>  <div id="supportBtn" onclick="toggleSupport()">📞</div>
-  <div id="supportMenu">
-    <a href="https://t.me/NxonaSupport" target="_blank">📨 Telegram Support</a>
-    <a href="https://t.me/NxonaCompany" target="_blank">📢 Telegram Channel</a>
-  </div>  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>  <script>
+    Nxona LLC | ©Nxona Code Runner<br>
+    Developer </> : RxWorldX
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+  <script>
     let darkMode = true;
     let pyodideInstance;
+
     function toggleDark() {
       darkMode = !darkMode;
       document.body.classList.toggle("dark", !darkMode);
     }
+
+    function toggleInfo() {
+      const menu = document.getElementById("infoMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
     async function runCode() {
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
       const output = document.getElementById("output");
+
       if (filename.endsWith(".js")) {
         try {
           const result = eval(code);
@@ -83,20 +232,25 @@
         output.textContent = "⛔ Only .js, .py, .html files supported.";
       }
     }
+
     function saveToFile() {
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
+
       if (!filename) {
         alert("⚠️ Enter file name first!");
         return;
       }
+
       const blob = new Blob([code], { type: "text/plain" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
       link.click();
+
       document.getElementById("output").textContent = `✅ File saved: ${filename}`;
     }
+
     function saveLocal() {
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
@@ -104,6 +258,7 @@
       localStorage.setItem("nxona-" + filename, code);
       alert("✅ Saved locally.");
     }
+
     function loadLocal() {
       const filename = document.getElementById("filename").value.trim();
       const saved = localStorage.getItem("nxona-" + filename);
@@ -114,9 +269,6 @@
         alert("❌ No saved code found.");
       }
     }
-    function toggleSupport() {
-      const menu = document.getElementById("supportMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    }
-  </script></body>
+  </script>
+</body>
 </html>
