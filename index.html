@@ -2,19 +2,99 @@
 <html>
 <head>
   <title>Nxona Code Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { background: #121212; color: white; font-family: sans-serif; padding: 1rem; transition: 0.3s; }
-    textarea, input, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: none; font-size: 16px; }
-    textarea { height: 200px; background: #1e1e1e; color: #0f0; }
-    button { background: #ff8800; color: black; font-weight: bold; }
-    pre { background: #222; padding: 10px; border-radius: 10px; white-space: pre-wrap; margin-top: 10px; }
-    .dark { background: #ffffff; color: #000000; }
-    .dark textarea { background: #e0e0e0; color: #000; }
-    .dark pre { background: #f5f5f5; color: #111; }
+    body {
+      background: #121212;
+      color: white;
+      font-family: sans-serif;
+      padding: 1rem;
+      transition: 0.3s;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    textarea, input {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    textarea {
+      height: 200px;
+      background: #1e1e1e;
+      color: #0f0;
+    }
+
+    button {
+      background: #ff8800;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin: 5px 5px 5px 0;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    pre {
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      margin-top: 10px;
+    }
+
+    .dark {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .dark textarea {
+      background: #e0e0e0;
+      color: #000;
+    }
+
+    .dark pre {
+      background: #f5f5f5;
+      color: #111;
+    }
+
+    .center-title {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+    }
   </style>
 </head>
 <body>
-  <h2>🚀 Nxona Code Runner (No Login)</h2>
+
+  <h2 class="center-title">🚀 Nxona Code Runner</h2>
+
+  <div class="button-row">
+    <button onclick="runCode()">▶ Run</button>
+    <button onclick="saveToFile()">💾 Save</button>
+    <button onclick="saveLocal()">📥 Save Local</button>
+    <button onclick="loadLocal()">📤 Load Local</button>
+    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
+  </div>
 
   <label>📄 File Name:</label>
   <input type="text" id="filename" placeholder="example: code.js, script.py, index.html" />
@@ -22,14 +102,12 @@
   <label>💻 Code:</label>
   <textarea id="code" placeholder="Write your code here..."></textarea>
 
-  <button onclick="runCode()">▶ Run</button>
-  <button onclick="saveToFile()">💾 Save</button>
-  <button onclick="saveLocal()">📥 Save Local</button>
-  <button onclick="loadLocal()">📤 Load Local</button>
-  <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
-
   <h3>📋 Output:</h3>
   <pre id="output"></pre>
+
+  <footer>
+    Nxona LLC | © Nxona Code Runner
+  </footer>
 
   <script>
     let darkMode = true;
@@ -51,8 +129,15 @@
         } catch (e) {
           output.textContent = "❌ JS Error:\n" + e.message;
         }
+      } else if (filename.endsWith(".html")) {
+        const win = window.open();
+        win.document.write(code);
+        win.document.close();
+        output.textContent = "✅ HTML Rendered in New Tab.";
+      } else if (filename.endsWith(".py")) {
+        output.textContent = "⚠️ Python execution not supported in browser. Use save to run offline.";
       } else {
-        output.textContent = "⛔ Only .js files can be run in browser.\nUse Save option to download.";
+        output.textContent = "❌ Unsupported file type.";
       }
     }
 
