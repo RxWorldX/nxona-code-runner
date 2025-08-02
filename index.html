@@ -1,43 +1,151 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nxona Code Runner</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/material-darker.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #1e1e1e;
+      color: white;
+    }
+    .tabs {
+      display: flex;
+      background: #2c2c2c;
+      padding: 0.5rem;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      background: #3c3c3c;
+      border: 1px solid #444;
+      margin-right: 0.25rem;
+      border-radius: 4px 4px 0 0;
+    }
+    .tab.active {
+      background: #1e1e1e;
+      border-bottom: none;
+    }
+    #editor {
+      height: 300px;
+    }
+    .toolbar {
+      padding: 0.5rem;
+      background: #2c2c2c;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .output {
+      background: black;
+      color: lime;
+      padding: 1rem;
+      height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>Nxona Code Runner</h1>
-      <button id="themeToggle">🌓</button>
-    </header>
-
-    <div id="tabs">
-      <button onclick="openTab('index.html')">index.html</button>
-      <button onclick="openTab('script.js')">script.js</button>
-      <button onclick="openTab('main.py')">main.py</button>
-    </div>
-
-    <div id="editor"></div>
-
-    <div id="actions">
-      <button onclick="runCode()">▶️ Run</button>
-    </div>
-
-    <div id="output">
-      <iframe id="outputFrame"></iframe>
-    </div>
+  <div class="tabs">
+    <div class="tab active" data-lang="html">index.html</div>
+    <div class="tab" data-lang="javascript">script.js</div>
+    <div class="tab" data-lang="python">main.py</div>
   </div>
+  <div class="toolbar">
+    <button onclick="runCode()">▶️ Run</button>
+    <button onclick="downloadCode()">⬇️ Download</button>
+    <button onclick="saveCode()">💾 Save</button>
+    <button onclick="toggleTheme()">🌓 Theme</button>
+  </div>
+  <textarea id="editor"></textarea>
+  <div class="output" id="output"></div>  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/htmlmixed/htmlmixed.min.js"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/javascript/javascript.min.js"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/python/python.min.js"></script>  <script src="https://cdn.jsdelivr.net/npm/brython@3.11.3/brython.min.js"></script>  <script src="https://cdn.jsdelivr.net/npm/brython@3.11.3/brython_stdlib.js"></script>  <script>
+    let currentLang = "html";
+    const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+      mode: "htmlmixed",
+      theme: "material-darker",
+      lineNumbers: true,
+      autoCloseTags: true
+    });
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/brython@3.11.3/brython.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/brython@3.11.3/brython_stdlib.js"></script>
-  <script src="script.js"></script>
+    const tabs = document.querySelectorAll(".tab");
+    const output = document.getElementById("output");
+    let codeStore = {
+      html: `<h1>Hello from HTML</h1>`,
+      javascript: `alert('Hello from JS');`,
+      python: `print('Hello from Python')`
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        currentLang = tab.getAttribute("data-lang");
+        editor.setOption("mode", currentLang === "python" ? "python" : (currentLang === "javascript" ? "javascript" : "htmlmixed"));
+        editor.setValue(codeStore[currentLang]);
+      });
+    });
+
+    function runCode() {
+      const code = editor.getValue();
+      codeStore[currentLang] = code;
+      output.innerText = "";
+      if (currentLang === "html") {
+        const iframe = document.createElement("iframe");
+        iframe.style.width = "100%";
+        iframe.style.height = "150px";
+        document.getElementById("output").appendChild(iframe);
+        iframe.contentDocument.body.innerHTML = code;
+      } else if (currentLang === "javascript") {
+        try {
+          const result = eval(code);
+          if (result !== undefined) output.innerText = result;
+        } catch (e) {
+          output.innerText = e;
+        }
+      } else if (currentLang === "python") {
+        output.innerHTML = `<script type='text/python'>${code}</script>`;brython();
+  }
+}
+
+function downloadCode() {
+  const blob = new Blob([editor.getValue()], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = tabs[Array.from(tabs).findIndex(t => t.classList.contains("active"))].innerText;
+  a.click();
+}
+
+function saveCode() {
+  localStorage.setItem("nxona-code-" + currentLang, editor.getValue());
+  alert("Code saved for " + currentLang);
+}
+
+function toggleTheme() {
+  const isDark = editor.getOption("theme") === "material-darker";
+  editor.setOption("theme", isDark ? "default" : "material-darker");
+}
+
+// Load saved code
+window.onload = () => {
+  tabs.forEach(tab => {
+    const lang = tab.getAttribute("data-lang");
+    const saved = localStorage.getItem("nxona-code-" + lang);
+    if (saved) codeStore[lang] = saved;
+  });
+  editor.setValue(codeStore[currentLang]);
+};
+
+  </script>
 </body>
 </html>
