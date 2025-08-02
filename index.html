@@ -4,124 +4,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nxona Code Runner</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f7f7;
-      margin: 0;
-      padding: 0;
-      transition: background 0.3s, color 0.3s;
-    }
-    header {
-      background: linear-gradient(to right, orange, magenta);
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
-      border-bottom: 2px solid #ccc;
-    }
-    .container {
-      padding: 20px;
-    }
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    textarea {
-      height: 200px;
-      resize: vertical;
-    }
-    button {
-      padding: 10px 15px;
-      margin-right: 10px;
-      background-color: orange;
-      border: none;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color: darkorange;
-    }
-    pre {
-      background-color: #eee;
-      padding: 15px;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
-    .dark {
-      background-color: #121212;
-      color: #f1f1f1;
-    }
-    .dark textarea, .dark input[type="text"] {
-      background-color: #1e1e1e;
-      color: #f1f1f1;
-      border: 1px solid #555;
-    }
-    .dark pre {
-      background-color: #1e1e1e;
-      color: #00ff7f;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css"/>
 </head>
 <body>
-  <header>🚀 Nxona Code Runner</header>
-  <div class="container">
-    <input type="text" id="filename" placeholder="example.js / test.py / page.html / script.php" />
-    <textarea id="code" placeholder="Write your code here..."></textarea><br />
-    <button onclick="runCode()">▶ Run JS</button>
-    <button onclick="saveToFile()">💾 Save Code</button>
-    <button onclick="toggleDarkMode()">🌓 Toggle Dark Mode</button>
-    <h3>📋 Output:</h3>
-    <pre id="output"></pre>
+  <div id="app">
+    <header>
+      <h1>Nxona Code Runner</h1>
+      <button id="themeToggle">🌓</button>
+    </header>
+
+    <div id="tabs">
+      <button onclick="openTab('index.html')">index.html</button>
+      <button onclick="openTab('script.js')">script.js</button>
+      <button onclick="openTab('main.py')">main.py</button>
+    </div>
+
+    <div id="editor"></div>
+
+    <div id="actions">
+      <button onclick="runCode()">▶️ Run</button>
+    </div>
+
+    <div id="output">
+      <iframe id="outputFrame"></iframe>
+    </div>
   </div>
 
-  <script>
-    let isDark = false;
-
-    function toggleDarkMode() {
-      isDark = !isDark;
-      document.body.classList.toggle("dark", isDark);
-    }
-
-    function runCode() {
-      const code = document.getElementById("code").value;
-      const filename = document.getElementById("filename").value.trim();
-      const extension = filename.split('.').pop().toLowerCase();
-
-      if (extension === 'js') {
-        try {
-          const output = eval(code);
-          document.getElementById("output").innerText = output ?? '✅ Code executed.';
-        } catch (err) {
-          document.getElementById("output").innerText = "❌ Error: " + err.message;
-        }
-      } else {
-        document.getElementById("output").innerText = "⚠️ Only JavaScript (.js) can be run.";
-      }
-    }
-
-    function saveToFile() {
-      const code = document.getElementById("code").value;
-      const filename = document.getElementById("filename").value.trim();
-
-      if (!filename) {
-        alert("❗ Please enter a filename with extension like script.js, code.py, index.html");
-        return;
-      }
-
-      const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-    }
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/brython@3.11.3/brython.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/brython@3.11.3/brython_stdlib.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
