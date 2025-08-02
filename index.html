@@ -1,7 +1,6 @@
 <!DOCTYPE html><html>
 <head>
   <title>Nxona Code Runner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { background: #121212; color: white; font-family: sans-serif; padding: 1rem; transition: 0.3s; }
     textarea, input, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: none; font-size: 16px; }
@@ -11,62 +10,48 @@
     .dark { background: #ffffff; color: #000000; }
     .dark textarea { background: #e0e0e0; color: #000; }
     .dark pre { background: #f5f5f5; color: #111; }
-    .topbar { text-align: center; margin-bottom: 10px; }
-    .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 15px 0; }
-    .buttons button { flex: 1 1 40%; max-width: 200px; }
+    .topbar { text-align: center; margin-bottom: 15px; }
+    .buttons { text-align: center; margin-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
     footer { text-align: center; margin-top: 30px; opacity: 0.7; font-size: 14px; }
-    .contact-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      text-align: right;
-    }
-    .contact-float a {
-      display: block;
-      background: #0088cc;
-      color: white;
-      padding: 10px 15px;
-      margin-top: 8px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .contact-float a:hover { opacity: 0.8; }
+    #supportBtn { position: fixed; bottom: 20px; right: 20px; background: #0088cc; color: white; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; display: flex; align-items: center; justify-content: center; }
+    #supportMenu { display: none; position: fixed; bottom: 80px; right: 20px; background: #222; border-radius: 8px; padding: 10px; }
+    #supportMenu a { display: block; color: #0ff; margin-bottom: 5px; text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <h2>🚀 Nxona Code Runner</h2>
-  </div><label>📄 File Name:</label> <input type="text" id="filename" placeholder="example: code.js, script.py, index.html" />
-
-<label>💻 Code:</label>
-
-  <textarea id="code" placeholder="Write your code here..."></textarea>  <div class="buttons">
-    <button onclick="runCode()">▶ Run</button>
-    <button onclick="saveToFile()">💾 Save</button>
-    <button onclick="saveLocal()">📥 Save Local</button>
-    <button onclick="loadLocal()">📤 Load Local</button>
-    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
-  </div>  <h3>📋 Output:</h3>
-  <pre id="output"></pre>  <footer>
+    <div class="buttons">
+      <button onclick="runCode()">▶ Run</button>
+      <button onclick="saveToFile()">💾 Save</button>
+      <button onclick="saveLocal()">📥 Save Local</button>
+      <button onclick="loadLocal()">📤 Load Local</button>
+      <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
+    </div>
+  </div>
+  <label>📄 File Name:</label>
+  <input type="text" id="filename" placeholder="example: code.js, script.py, index.html" />
+  <label>💻 Code:</label>
+  <textarea id="code" placeholder="Write your code here..."></textarea>
+  <h3>📋 Output:</h3>
+  <pre id="output"></pre>
+  <footer>
     Nxona LLC | ©Nxona Code Runner
-  </footer>  <div class="contact-float">
-    <a href="https://t.me/NxonaSupport" target="_blank">📞 Telegram Support</a>
+  </footer>  <div id="supportBtn" onclick="toggleSupport()">📞</div>
+  <div id="supportMenu">
+    <a href="https://t.me/NxonaSupport" target="_blank">📨 Telegram Support</a>
     <a href="https://t.me/NxonaCompany" target="_blank">📢 Telegram Channel</a>
   </div>  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>  <script>
     let darkMode = true;
     let pyodideInstance;
-
     function toggleDark() {
       darkMode = !darkMode;
       document.body.classList.toggle("dark", !darkMode);
     }
-
     async function runCode() {
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
       const output = document.getElementById("output");
-
       if (filename.endsWith(".js")) {
         try {
           const result = eval(code);
@@ -98,25 +83,20 @@
         output.textContent = "⛔ Only .js, .py, .html files supported.";
       }
     }
-
     function saveToFile() {
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
-
       if (!filename) {
         alert("⚠️ Enter file name first!");
         return;
       }
-
       const blob = new Blob([code], { type: "text/plain" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
       link.click();
-
       document.getElementById("output").textContent = `✅ File saved: ${filename}`;
     }
-
     function saveLocal() {
       const filename = document.getElementById("filename").value.trim();
       const code = document.getElementById("code").value;
@@ -124,7 +104,6 @@
       localStorage.setItem("nxona-" + filename, code);
       alert("✅ Saved locally.");
     }
-
     function loadLocal() {
       const filename = document.getElementById("filename").value.trim();
       const saved = localStorage.getItem("nxona-" + filename);
@@ -135,12 +114,9 @@
         alert("❌ No saved code found.");
       }
     }
-
-    // Demo file
-    window.addEventListener("load", () => {
-      const defaultCode = `console.log("Hello, Welcome To Nxona Code Runner\n\nPower Py Nxona LLC");`;
-      document.getElementById("filename").value = "nxona.js";
-      document.getElementById("code").value = defaultCode;
-    });
+    function toggleSupport() {
+      const menu = document.getElementById("supportMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
   </script></body>
 </html>
